@@ -1,0 +1,13 @@
+directory <- getwd()
+NEI <- readRDS(paste(directory,"summarySCC_PM25.rds",sep="/"))
+SCC <- readRDS(paste(directory,"Source_Classification_Code.rds",sep="/"))
+Baltimore <- subset(NEI,fips=="24510")
+totalEmBaltimore <- as.data.frame(tapply(Baltimore$Emissions,Baltimore$year,sum))
+names(totalEmBaltimore) <- make.names("Emissions")
+totalEmBaltimore$Year <- rownames(totalEmBaltimore)
+rownames(totalEmBaltimore) <- 1:4
+png(file="plot2.png",bg="transparent")
+plot(Emissions~Year,data=totalEmBaltimore,main=expression("Total PM"[2.5]*" Emissions in Baltimore City,Maryland"),font.main=3,col.main="tomato1", font.lab=2,col.lab="tomato", pch=19,cex=1.2, col=3,type="o",lwd=1.5,lty=8)
+text(totalEmBaltimore$Year,totalEmBaltimore$Emissions,labels=round(totalEmBaltimore$Emissions,digits=2),pos=c(4,1,1,2),col="red",cex=0.8)
+title(sub="(1999,2002,2005,2008)",cex.sub=0.8,col.sub="thistle4")
+dev.off()

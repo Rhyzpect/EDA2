@@ -1,0 +1,38 @@
+# The script works when the extracted data is in your working directory
+
+directory <- getwd()
+NEI <- readRDS(paste(directory,"summarySCC_PM25.rds",sep="/"))
+SCC <- readRDS(paste(directory,"Source_Classification_Code.rds",sep="/"))
+Baltimore <- subset(NEI,fips=="24510")
+newBaltimore <- merge(Baltimore,SCC,by.x="SCC",by.y="SCC")
+newBaltimore1 <- newBaltimore[newBaltimore$type=="ON-ROAD",]
+newBaltimore2 <- as.data.frame(tapply(newBaltimore1$Emissions,newBaltimore1$year,sum))
+names(newBaltimore2) <- make.names("ToTal Emissions")
+newBaltimore2$ToTal.Emissions <- as.numeric(newBaltimore2$ToTal.Emissions)
+newBaltimore2$Year <- rownames(newBaltimore2)
+rownames(newBaltimore2) <- 1:4
+LosAngeles <- subset(NEI,fips=="06037")
+newLosAngeles <- merge(LosAngeles,SCC,by.x="SCC",by.y="SCC")
+newLosAngeles1 <- newLosAngeles[newLosAngeles$type=="ON-ROAD",]
+newLosAngeles2 <- as.data.frame(tapply(newLosAngeles1$Emissions,newLosAngeles1$year,sum))
+names(newLosAngeles2) <- make.names("ToTal Emissions")
+newLosAngeles2$ToTal.Emissions <- as.numeric(newLosAngeles2$ToTal.Emissions)
+newLosAngeles2$Year <- rownames(newLosAngeles2)
+rownames(newLosAngeles2) <- 1:4
+png(file="plot6.png",width=600,height=500,bg="transparent")
+par(mar=c(5,4,4,6)+0.1)
+with(newBaltimore2,plot(Year,ToTal.Emissions,axes = FALSE,ylab="",xlab="",ylim=c(80,360),col="firebrick3",pch=19,cex=1.5,main="On-Road Sources' Total Emissions in Baltimore And Los Angeles City",font.main=2,col.main="springgreen3",type="o",lty=3))
+axis(2,ylim=c(80,360),col="tan4",col.axis="firebrick3",las=1)
+mtext("Total Emissions",side=2,line=3,col="firebrick3")
+text(newBaltimore2$Year,newBaltimore2$ToTal.Emissions,labels=round(newBaltimore2$ToTal.Emissions,digits=2),col="firebrick3",cex=0.75,pos=c(4,1,1,2))
+title(sub="(1999,2002,2005,2008)",cex.sub=0.8,col.sub="thistle4")
+par(new=TRUE)
+with(newLosAngeles2,plot(Year,ToTal.Emissions,cex=1.5,col="steelblue",axes=FALSE,ylab="",xlab="",pch=19,type="o",lty=3))
+axis(4,ylim=c(3900,4150),col="steelblue",col.axis="steelblue",las=1)
+mtext("Total Emissions",side=4,line=3.5,col="steelblue")
+axis(1,c(1999,2002,2005,2008),col="springgreen3")
+mtext("Year",side=1,col="springgreen3",font=2,line=2.5)
+text(newLosAngeles2$Year,newLosAngeles2$ToTal.Emissions,labels=round(newLosAngeles2$ToTal.Emissions,digits=2),col="steelblue",cex=0.75,pos=c(4,1,1,2))
+legend("topright",legend=c("Los Angeles","Baltimore"),cex=0.8,text.col=c("steelblue","firebrick3"),pch=c(19,19),col=c("steelblue","firebrick3"))
+box()
+dev.off()

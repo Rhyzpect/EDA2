@@ -1,0 +1,20 @@
+# The script works when the extracted data is in your working directory
+# It also uses the ggplot2 and reshape2 packages
+
+library(ggplot2)
+library(reshape2)
+directory <- getwd()
+NEI <- readRDS(paste(directory,"summarySCC_PM25.rds",sep="/"))
+SCC <- readRDS(paste(directory,"Source_Classification_Code.rds",sep="/"))
+Baltimore <- subset(NEI,fips=="24510")
+Baltimore$year <- as.factor(Baltimore$year)
+Baltimore$type <- as.factor(Baltimore$type)
+nameBalt <- names(Baltimore)
+Baltimore1 <- melt(Baltimore,id=c("year","type"),measure.vars = nameBalt[4])
+newBaltimore <- dcast(Baltimore1,year+type~variable,sum)
+png(file="plot3.png",bg="transparent",width=900,height=600)
+options(warn=-1)
+PM25Plot <- qplot(year,Emissions,data=newBaltimore,facets=.~type,color=type,main="Total PM2.5 Emissions in Baltimore")
+PM25Plot + geom_smooth(aes(group=1),method="loess",lty=4,se=FALSE)+geom_point(size=4)+geom_text(data=newBaltimore,aes(x=year,y=Emissions-30,label=round(Emissions,digits = 2)),cex=3.5)+theme_light()
+options(warn=0)
+dev.off()

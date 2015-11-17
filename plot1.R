@@ -1,0 +1,12 @@
+directory <- getwd()
+NEI <- readRDS(paste(directory,"summarySCC_PM25.rds",sep="/"))
+SCC <- readRDS(paste(directory,"Source_Classification_Code.rds",sep="/"))
+totalEm <- as.data.frame(tapply(NEI$Emissions,NEI$year,sum))
+names(totalEm) <- make.names("Emissions")
+totalEm$Year <- rownames(totalEm)
+rownames(totalEm) <- 1:4
+png(file="plot1.png",height=600, width=900, bg="transparent")
+plot(Emissions/1000~Year,data=totalEm,main=expression("Total PM"[2.5]*" Emissions in the US"),font.main=3,col.main="tomato1", ylab="PM2.5 Emissions (x1000)" ,font.lab=2,col.lab="tomato", pch=19,cex=1.2, col=3,type="o",lwd=1.5,lty=8)
+text(totalEm$Year,(totalEm$Emissions/1000),labels=prettyNum(round(totalEm$Emissions),big.mark = ","),pos=c(1,1,1,2),col="red",cex=0.8)
+title(sub="(1999,2002,2005,2008)",cex.sub=0.8,col.sub="thistle4")
+dev.off()
